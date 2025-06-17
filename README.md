@@ -44,12 +44,15 @@ You can find the data in [`data/data.csv`](data/data.csv).
 * Minsearch for full text search 
 * GEMINI as LLM
 * Flas for API interface
-*  
 
 
 ## Runing it
 
+## Running locally 
 ### Installing the depencies 
+If you don't use docker and run locally,
+you need to manually prepare the eenvironment and install all the depencies .
+
 We use pip for managing dependencies and Python 3.12
 
 Installing the dependencies 
@@ -60,12 +63,28 @@ pip install -r requirements.txt
 
 ### Run the application
 
-Running the Flask application:
+For Running the Flask application locally, run this:
+
 ```bash
     python3 app.py
+
+```
+## Preparing the application
+
+Before we can use the app, we need to initialize the database.
+We can do it by running the [`db_prep.py`](fitness_assistant/db_prep.py) script:
+
+```bash
+export POSTGRES_HOST=localhost
+cd fitness_assistant
+python3 db_prep.py
 ```
 
-Testin it
+
+### Using the application
+Fist you need to start the application either with docker compose  or locally:
+
+When it's running, let's test it:
 
 ```bash
 URL="http://localhost:5000"
@@ -111,6 +130,20 @@ Alternatively you can use [test.py](test.py) for testing it:
 python3 test.py
 ```
 
+### Runing it with Docker
+The easiest way to run this application is with docker 
+```bash
+docker compose up 
+```
+If you need to change something in the dockerfile and test it quickly, you can use the folowing commands:
+```bash
+docker build -t fitness-assistant .
+```
+```bash
+docker run -it --rm \
+    -p 5000:5000 \
+    fitness-assistant
+```
 ### Misc
 You can also run the notebooks to explore the experiments
 

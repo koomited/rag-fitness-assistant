@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 import uuid
 from rag import rag  
+import db
 
 app = Flask(__name__)
 
@@ -19,12 +20,25 @@ def ask_question():
         # Invoke the RAG function with the question
         answer = rag(question)
         
+        db.save_conversation(
+                    question=question,
+                    answer=answer,
+                    model_used=,
+                    response_time=result["response_time"],
+                    relevance=result["relevance"],
+                    relevance_explanation=result["relevance_explanation"],
+                    prompt_tokens=result["prompt_tokens"],
+                    completion_tokens=result["completion_tokens"],
+                    gemini_cost=result["gemini_cost"]
+                )  # Save conversation to the database
+        
         # Return the answer and conversation ID
         return jsonify({
             'conversation_id': conversation_id,
             'question': question,
             'answer': answer
         }), 200
+        
     except Exception as e:
         return jsonify({'error': f'Error processing question: {str(e)}'}), 500
 

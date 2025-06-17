@@ -4,7 +4,6 @@ from google import genai
 import injest
 
 import os
-os.environ["GEMINI_API_KEY"] = "AIzaSyBPcFwBMINWQa3fWGh0fhkWx6hU9uR0NB0"
 
 
 client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))

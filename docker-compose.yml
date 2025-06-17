@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  postgres:
+    container_name: postgres
+    image: postgres:15
+    environment:
+      POSTGRES_DB: course_assistant
+      POSTGRES_USER: course_user
+      POSTGRES_PASSWORD: course_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - course_network
+
+  app:
+    container_name: fitness_assistant_app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    # environment:
+      # - POSTGRES_HOST=postgres
+      # - POSTGRES_DB=course_assistant
+      # - POSTGRES_USER=course_user
+      # - POSTGRES_PASSWORD=course_password
+      # - POSTGRES_PORT=5432
+      # - GEMINI_API_KEY=${GEMINI_API_KEY}
+      # - INDEX_NAME=course-questions
+    depends_on:
+      - postgres
+    networks:
+      - course_network
+    volumes:
+      - .:/app
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana_data:/var/lib/grafana
+    networks:
+      - course_network
+    depends_on:
+      - app
+      - postgres
+
+volumes:
+  postgres_data:
+    driver: local
+  grafana_data:
+    driver: local
+
+networks:
+  course_network:
+    driver: bridge

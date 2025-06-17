@@ -2,8 +2,12 @@
 import pandas as pd
 import minsearch
 
+import os
 
-def load_index(data_path: str = '../data/data.csv') -> minsearch.Index:
+DATA_PATH = os.getenv('DATA_PATH', '../data/data.csv')
+
+
+def load_index(data_path: str = DATA_PATH) -> minsearch.Index:
     """
     Load the index from a CSV file.
     Args:
