@@ -107,92 +107,111 @@ python3 db_prep.py
 ```
 
 
-### Using the application
-Fist you need to start the application either with docker compose  or locally:
+## Using the application
 
-When it's running, let's test it:
+When the application is running, we can start using it.
+
+### CLI
+
+We built an interactive CLI application using
+[questionary](https://questionary.readthedocs.io/en/stable/).
+
+To start it, run:
 
 ```bash
-URL="http://localhost:5000"
-QUESTION="How to get a flat stomach?"
-DATA='{"question":"'${QUESTION}'"}'
+pipenv run python cli.py
+```
+
+You can also make it randomly select a question from
+[our ground truth dataset](data/ground-truth-retrieval.csv):
+
+```bash
+pipenv run python cli.py --random
+```
+
+### Using `requests`
+
+When the application is running, you can use
+[requests](https://requests.readthedocs.io/en/latest/)
+to send questions—use [test.py](test.py) for testing it:
+
+```bash
+pipenv run python test.py
+```
+
+It will pick a random question from the ground truth dataset
+and send it to the app.
+
+### CURL
+
+You can also use `curl` for interacting with the API:
+
+```bash
+URL=http://localhost:5000
+QUESTION="Is the Lat Pulldown considered a strength training activity, and if so, why?"
+DATA='{
+    "question": "'${QUESTION}'"
+}'
+
 curl -X POST \
     -H "Content-Type: application/json" \
     -d "${DATA}" \
-    ${URL}/ask 
-
+    ${URL}/question
 ```
-You will see something like the following in the response 
+
+You will see something like the following in the response:
 
 ```json
 {
-  "answer": "Based on the provided exercises, strengthening your core muscles is important for a flat stomach.  Exercises like Turkish Get-Ups and Dead Bugs directly activate the core muscles (Rectus Abdominis and Hip Flexors).  Additionally, many exercises indirectly engage the core for stabilization, such as the Sled Push and Sled Drag.\n",
-  "conversation_id": "1b44a2f7-956c-4b6e-8802-bbcfa09488eb",
-  "question": "How to get a flat stomach?"
+    "answer": "Yes, the Lat Pulldown is considered a strength training activity. This classification is due to it targeting specific muscle groups, specifically the Latissimus Dorsi and Biceps, which are essential for building upper body strength. The exercise utilizes a machine, allowing for controlled resistance during the pulling action, which is a hallmark of strength training.",
+    "conversation_id": "4e1cef04-bfd9-4a2c-9cdd-2771d8f70e4d",
+    "question": "Is the Lat Pulldown considered a strength training activity, and if so, why?"
 }
 ```
 
-Sending Feedback
+Sending feedback:
 
 ```bash
-URL="http://localhost:5000"
-ID="76c11ac8-6b81-4435-8fe8-30e4f97c3b31"
-DATA='{"conversation_id":'"${ID}"',"feedback":1}'
-curl -X POST \
-    -H "Content-Type: application/json" \
-    -d "${DATA}" \
-    ${URL}/feedback 
+ID="4e1cef04-bfd9-4a2c-9cdd-2771d8f70e4d"
+URL=http://localhost:5000
+FEEDBACK_DATA='{
+    "conversation_id": "'${ID}'",
+    "feedback": 1
+}'
 
-URL="http://localhost:5000"
-ID="76c11ac8-6b81-4435-8fe8-30e4f97c3b31"
-DATA='{"conversation_id":'"${ID}"',"feedback":1}'
 curl -X POST \
     -H "Content-Type: application/json" \
-    -d "${DATA}" \
+    -d "${FEEDBACK_DATA}" \
     ${URL}/feedback
-
 ```
-After sending it you'll receive the acknowledgement
+
+After sending it, you'll receive the acknowledgement:
 
 ```json
 {
-  "message": "Received feedback 1 for conversation 1b44a2f7-956c-4b6e-8802-bbcfa09488eb"
+    "message": "Feedback received for conversation 4e1cef04-bfd9-4a2c-9cdd-2771d8f70e4d: 1"
 }
 ```
-Alternatively you can use [test.py](test.py) for testing it:
 
-```bash
-python3 test.py
-```
+## Code
 
-### Runing it with Docker
-The easiest way to run this application is with docker 
-```bash
-docker compose up 
-```
-If you need to change something in the dockerfile and test it quickly, you can use the folowing commands:
-```bash
-docker build -t fitness-assistant .
-```
-```bash
-docker run -it --rm \
-    -p 5000:5000 \
-    fitness-assistant
-```
-### Misc
-You can also run the notebooks to explore the experiments
+The code for the application is in the [`fitness_assistant`](fitness_assistant/) folder:
 
-##  Code 
+- [`app.py`](fitness_assistant/app.py) - the Flask API, the main entrypoint to the application
+- [`rag.py`](fitness_assistant/rag.py) - the main RAG logic for building the retrieving the data and building the prompt
+- [`ingest.py`](fitness_assistant/ingest.py) - loading the data into the knowledge base
+- [`minsearch.py`](fitness_assistant/minsearch.py) - an in-memory search engine
+- [`db.py`](fitness_assistant/db.py) - the logic for logging the requests and responses to postgres
+- [`db_prep.py`](fitness_assistant/db_prep.py) - the script for initializing the database
 
-The code for the application is in 
-[`fitness_assistant`](fitness_assistant/) folder:
+We also have some code in the project root directory:
 
-- [`app.py`](fitness_assistant/app.py)
-- [`ingest.py`](fitness_assistant/injest.py)
-- [``rag.py](fitness_assistant/rag.py)
+- [`test.py`](test.py) - select a random question for testing
+- [`cli.py`](cli.py) - interactive CLI for the APP
 
 
-## Interface
+
+### Interface
 We use Flask for serving the application as API. 
 Refer to ["Runthe application" section](#run-the-application) for more details
 
