@@ -18,25 +18,37 @@ def ask_question():
     
     try:
         # Invoke the RAG function with the question
-        answer = rag(question)
+        answer_data = rag(question)
         
-        db.save_conversation(
-                    question=question,
-                    answer=answer,
-                    model_used=,
-                    response_time=result["response_time"],
-                    relevance=result["relevance"],
-                    relevance_explanation=result["relevance_explanation"],
-                    prompt_tokens=result["prompt_tokens"],
-                    completion_tokens=result["completion_tokens"],
-                    gemini_cost=result["gemini_cost"]
-                )  # Save conversation to the database
+        # db.save_conversation(
+        #             question=question,
+        #             answer=answer,
+        #             model_used="gemini-1.5-flash",
+        #             response_time=result["response_time"],
+        #             relevance=result["relevance"],
+        #             relevance_explanation=result["relevance_explanation"],
+        #             prompt_tokens=result["prompt_tokens"],
+        #             completion_tokens=result["completion_tokens"],
+        #             gemini_cost=result["gemini_cost"]
+        #         )  # Save conversation to the database
         
         # Return the answer and conversation ID
+        
+        db.save_conversation(
+                            conversation_id=conversation_id,
+                            question=question,
+                             answer = answer_data.get("answer"), 
+                             model_used=answer_data["model_used"], 
+                             response_time=answer_data["response_time"], 
+                            relevance=answer_data["relevance"], 
+                            relevance_explanation=answer_data["relevance_explanation"],
+                            prompt_tokens=answer_data["prompt_tokens"], 
+                            completion_tokens= answer_data["completion_tokens"],
+                            gemini_cost= answer_data["gemini_cost"])
         return jsonify({
             'conversation_id': conversation_id,
             'question': question,
-            'answer': answer
+            'answer_data': answer_data
         }), 200
         
     except Exception as e:
@@ -52,6 +64,9 @@ def submit_feedback():
     if not conversation_id or feedback not in [-1, 1]:
         return jsonify({'error': 'Valid conversation_id and feedback (+1 or -1) are required'}), 400
     
+    db.save_feedback(conversation_id=conversation_id,
+                     feedback=feedback
+                     )
     # Acknowledge receiving feedback (database storage to be implemented later)
     return jsonify({
         'message': f'Received feedback {feedback} for conversation {conversation_id}'

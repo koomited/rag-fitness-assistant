@@ -50,7 +50,6 @@ services:
     networks:
       - course_network
     depends_on:
-      - app
       - postgres
 
 volumes:

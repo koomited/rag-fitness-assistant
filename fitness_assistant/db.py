@@ -36,11 +36,13 @@ def init_db():
                     relevance VARCHAR(20),
                     relevance_explanation TEXT,
                     prompt_tokens INTEGER,
+                    eval_prompt_tokens INTEGER,
+                    eval_completion_tokens INTEGER,
+                    eval_total_tokens INTEGER,
                     completion_tokens INTEGER,
+                    total_tokens INTEGER,
                     gemini_cost FLOAT,
-                    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                )
+                    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP)
             """)
 
             print("[INFO] Creating 'feedback' table...")
@@ -58,22 +60,47 @@ def init_db():
     finally:
         conn.close()
 
-def save_conversation(question, answer, model_used=None, response_time=None, 
-                     relevance=None, relevance_explanation=None, prompt_tokens=None, 
-                     completion_tokens=None, gemini_cost=None):
+def save_conversation(conversation_id,
+                      question, answer,
+                      model_used=None,
+                      response_time=None, 
+                     relevance=None,
+                     relevance_explanation=None,
+                     prompt_tokens=None, 
+                     completion_tokens=None,
+                     total_tokens=0, 
+                     eval_prompt_tokens=0,
+                     eval_completion_tokens=0,
+                     eval_total_tokens=0,
+                     gemini_cost=0):
     """Save a conversation to the database"""
     conn = get_db_connection()
     try:
         with conn.cursor() as cur:
-            conversation_id = str(uuid.uuid4())
             cur.execute("""
                 INSERT INTO conversations 
-                (id, question, answer, model_used, response_time, 
-                 relevance, relevance_explanation, prompt_tokens, completion_tokens, gemini_cost)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                (id, question, 
+                answer, 
+                model_used, 
+                response_time, 
+                 relevance, 
+                 relevance_explanation,
+                 prompt_tokens, 
+                 completion_tokens,
+                 total_tokens,
+                 eval_prompt_tokens,
+                 eval_completion_tokens,
+                 eval_total_tokens, 
+                 gemini_cost)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 RETURNING id
-            """, (conversation_id, question, answer, model_used, response_time,
-                  relevance, relevance_explanation, prompt_tokens, completion_tokens, gemini_cost))
+            """, (conversation_id,
+                  question, answer,
+                  model_used, response_time,
+                  relevance, relevance_explanation,
+                  prompt_tokens, completion_tokens, total_tokens,
+                  eval_prompt_tokens, eval_completion_tokens, eval_total_tokens,
+                  gemini_cost))
             
             result = cur.fetchone()
             conn.commit()

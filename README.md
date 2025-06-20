@@ -1,8 +1,36 @@
-# Fitness assistant
+# Fitness Assistant
 
-Staying consistent with fitness routines is challenging, especially for beginners. Gyms can be intimidating, and personal trainers aren't always available.
+Note: I submitted this project too to see how many points it'd get
 
-The Fitness Assistant provides a conversational AI that helps users choose exercises and find alternatives, making fitness more manageable.
+<p align="center">
+  <img src="images/banner.jpg">
+</p>
+
+Staying consistent with fitness routines is challenging,
+especially for beginners. Gyms can be intimidating, and personal
+trainers aren't always available.
+
+The Fitness Assistant provides a conversational AI that helps
+users choose exercises and find alternatives, making fitness more
+manageable.
+
+This project was implemented for 
+[LLM Zoomcamp](https://github.com/DataTalksClub/llm-zoomcamp) -
+a free course about LLMs and RAG.
+
+<p align="center">
+  <img src="images/image.png">
+</p>
+
+To see a demo of the project and instructions on how to run it
+on github codespaces, check this video:
+
+
+<p align="center">
+  <a href="https://www.youtube.com/watch?v=RiQcSHzR8_E">
+    <img src="https://markdown-videos-api.jorgenkh.no/youtube/RiQcSHzR8_E">
+  </a>
+</p>
 
 
 ## Project overview
@@ -35,8 +63,6 @@ various exercises, including:
 the exercise (e.g., Pectorals, Triceps, Quadriceps).
 - **Instructions:** Step-by-step guidance on how to perform the
 exercise correctly.
-
-The dataset was generated using ChatGPT and contains 207 records. It serves as the foundation for the Fitness Assistant's exercise recommendations and instructional support.
 
 You can find the data in [`data/data.csv`](data/data.csv).
 
@@ -110,12 +136,21 @@ Sending Feedback
 
 ```bash
 URL="http://localhost:5000"
-ID="1b44a2f7-956c-4b6e-8802-bbcfa09488eb"
-DATA='{"conversation_id":"1b44a2f7-956c-4b6e-8802-bbcfa09488eb","feedback":1}'
+ID="76c11ac8-6b81-4435-8fe8-30e4f97c3b31"
+DATA='{"conversation_id":'"${ID}"',"feedback":1}'
 curl -X POST \
-    "${URL}/feedback" \
     -H "Content-Type: application/json" \
-    -d "${DATA}"
+    -d "${DATA}" \
+    ${URL}/feedback 
+
+URL="http://localhost:5000"
+ID="76c11ac8-6b81-4435-8fe8-30e4f97c3b31"
+DATA='{"conversation_id":'"${ID}"',"feedback":1}'
+curl -X POST \
+    -H "Content-Type: application/json" \
+    -d "${DATA}" \
+    ${URL}/feedback
+
 ```
 After sending it you'll receive the acknowledgement
 
@@ -198,7 +233,62 @@ Dor gemini-1.5-flash Among 200 records, we had :
 * 48% PARTIALLY_RELEVANT 
 * 41.5% NON_RELEVANT 
 
+
 ## Monitoring
+
+We use Grafana for monitoring the application. 
+
+It's accessible at [localhost:3000](http://localhost:3000):
+
+- Login: "admin"
+- Password: "admin"
+
+### Dashboards
+
+<p align="center">
+  <img src="images/dash.png">
+</p>
+
+The monitoring dashboard contains several panels:
+
+1. **Last 5 Conversations (Table):** Displays a table showing the five most recent conversations, including details such as the question, answer, relevance, and timestamp. This panel helps monitor recent interactions with users.
+2. **+1/-1 (Pie Chart):** A pie chart that visualizes the feedback from users, showing the count of positive (thumbs up) and negative (thumbs down) feedback received. This panel helps track user satisfaction.
+3. **Relevancy (Gauge):** A gauge chart representing the relevance of the responses provided during conversations. The chart categorizes relevance and indicates thresholds using different colors to highlight varying levels of response quality.
+4. **OpenAI Cost (Time Series):** A time series line chart depicting the cost associated with OpenAI usage over time. This panel helps monitor and analyze the expenditure linked to the AI model's usage.
+5. **Tokens (Time Series):** Another time series chart that tracks the number of tokens used in conversations over time. This helps to understand the usage patterns and the volume of data processed.
+6. **Model Used (Bar Chart):** A bar chart displaying the count of conversations based on the different models used. This panel provides insights into which AI models are most frequently used.
+7. **Response Time (Time Series):** A time series chart showing the response time of conversations over time. This panel is useful for identifying performance issues and ensuring the system's responsiveness.
+
+### Setting up Grafana
+
+All Grafana configurations are in the [`grafana`](grafana/) folder:
+
+- [`init.py`](grafana/init.py) - for initializing the datasource and the dashboard.
+- [`dashboard.json`](grafana/dashboard.json) - the actual dashboard (taken from LLM Zoomcamp without changes).
+
+To initialize the dashboard, first ensure Grafana is
+running (it starts automatically when you do `docker-compose up`).
+
+Then run:
+
+```bash
+pipenv shell
+
+cd grafana
+
+# make sure the POSTGRES_HOST variable is not overwritten 
+env | grep POSTGRES_HOST
+
+python init.py
+```
+
+Then go to [localhost:3000](http://localhost:3000):
+
+- Login: "admin"
+- Password: "admin"
+
+When prompted, keep "admin" as the new password.
+
 
 ## Background
 Here we provide background on some tech we used and further reading
