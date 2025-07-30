@@ -13,11 +13,6 @@ trainers aren't always available.
 The Fitness Assistant provides a conversational AI that helps
 users choose exercises and find alternatives, making fitness more
 manageable.
-
-This project was implemented for 
-[LLM Zoomcamp](https://github.com/DataTalksClub/llm-zoomcamp) -
-a free course about LLMs and RAG.
-
 <p align="center">
   <img src="images/image.png">
 </p>
