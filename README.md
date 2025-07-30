@@ -13,9 +13,6 @@ trainers aren't always available.
 The Fitness Assistant provides a conversational AI that helps
 users choose exercises and find alternatives, making fitness more
 manageable.
-<p align="center">
-  <img src="images/image.png">
-</p>
 
 
 
